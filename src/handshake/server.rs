@@ -38,7 +38,7 @@ pub struct Server<'a, T> {
     /// Protocols the server supports.
     protocols: Vec<&'a str>,
     /// Extensions the server supports.
-    extensions: Vec<Box<dyn Extension + Send>>,
+    extensions: Vec<Box<dyn Extension + Send + Sync>>,
     /// Encoding/decoding buffer.
     buffer: BytesMut
 }
@@ -72,13 +72,13 @@ impl<'a, T: AsyncRead + AsyncWrite + Unpin> Server<'a, T> {
     }
 
     /// Add an extension the server supports.
-    pub fn add_extension(&mut self, e: Box<dyn Extension + Send>) -> &mut Self {
+    pub fn add_extension(&mut self, e: Box<dyn Extension + Send + Sync>) -> &mut Self {
         self.extensions.push(e);
         self
     }
 
     /// Get back all extensions.
-    pub fn drain_extensions(&mut self) -> impl Iterator<Item = Box<dyn Extension + Send>> + '_ {
+    pub fn drain_extensions(&mut self) -> impl Iterator<Item = Box<dyn Extension + Send + Sync>> + '_ {
         self.extensions.drain(..)
     }
 

@@ -48,7 +48,7 @@ pub struct Client<'a, T> {
     /// The protocols to include in the handshake.
     protocols: Vec<&'a str>,
     /// The extensions the client wishes to include in the request.
-    extensions: Vec<Box<dyn Extension + Send>>,
+    extensions: Vec<Box<dyn Extension + Send + Sync>>,
     /// Encoding/decoding buffer.
     buffer: BytesMut
 }
@@ -93,13 +93,13 @@ impl<'a, T: AsyncRead + AsyncWrite + Unpin> Client<'a, T> {
     }
 
     /// Add an extension to be included in the handshake.
-    pub fn add_extension(&mut self, e: Box<dyn Extension + Send>) -> &mut Self {
+    pub fn add_extension(&mut self, e: Box<dyn Extension + Send + Sync>) -> &mut Self {
         self.extensions.push(e);
         self
     }
 
     /// Get back all extensions.
-    pub fn drain_extensions(&mut self) -> impl Iterator<Item = Box<dyn Extension + Send>> + '_ {
+    pub fn drain_extensions(&mut self) -> impl Iterator<Item = Box<dyn Extension + Send + Sync>> + '_ {
         self.extensions.drain(..)
     }
 

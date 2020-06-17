@@ -75,7 +75,7 @@ where
 }
 
 // Configure all extensions with parsed parameters.
-fn configure_extensions(extensions: &mut [Box<dyn Extension + Send>], line: &str) -> Result<(), Error> {
+fn configure_extensions(extensions: &mut [Box<dyn Extension + Send + Sync>], line: &str) -> Result<(), Error> {
     for e in line.split(',') {
         let mut ext_parts = e.split(';');
         if let Some(name) = ext_parts.next() {
@@ -101,7 +101,7 @@ fn configure_extensions(extensions: &mut [Box<dyn Extension + Send>], line: &str
 // Write all extensions to the given buffer.
 fn append_extensions<'a, I>(extensions: I, bytes: &mut BytesMut)
 where
-    I: IntoIterator<Item = &'a Box<dyn Extension + Send>>
+    I: IntoIterator<Item = &'a Box<dyn Extension + Send + Sync>>
 {
     let mut iter = extensions.into_iter().peekable();
 

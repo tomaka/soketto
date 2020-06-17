@@ -51,7 +51,7 @@ pub struct Sender<T> {
     codec: base::Codec,
     writer: BiLock<WriteHalf<T>>,
     mask_buffer: Vec<u8>,
-    extensions: BiLock<Vec<Box<dyn Extension + Send>>>,
+    extensions: BiLock<Vec<Box<dyn Extension + Send + Sync>>>,
     has_extensions: bool
 }
 
@@ -62,7 +62,7 @@ pub struct Receiver<T> {
     codec: base::Codec,
     reader: ReadHalf<T>,
     writer: BiLock<WriteHalf<T>>,
-    extensions: BiLock<Vec<Box<dyn Extension + Send>>>,
+    extensions: BiLock<Vec<Box<dyn Extension + Send + Sync>>>,
     has_extensions: bool,
     buffer: BytesMut,
     ctrl_buffer: BytesMut,
@@ -80,7 +80,7 @@ pub struct Builder<T> {
     mode: Mode,
     socket: T,
     codec: base::Codec,
-    extensions: Vec<Box<dyn Extension + Send>>,
+    extensions: Vec<Box<dyn Extension + Send + Sync>>,
     buffer: BytesMut,
     max_message_size: usize
 }
@@ -117,7 +117,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin> Builder<T> {
     /// Only enabled extensions will be considered.
     pub fn add_extensions<I>(&mut self, extensions: I)
     where
-        I: IntoIterator<Item = Box<dyn Extension + Send>>
+        I: IntoIterator<Item = Box<dyn Extension + Send + Sync>>
     {
         for e in extensions.into_iter().filter(|e| e.is_enabled()) {
             log::debug!("using extension: {}", e.name());
